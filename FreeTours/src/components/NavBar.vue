@@ -1,6 +1,6 @@
 <template>
     <header>
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background-color: #dc3545;">
         <div class="container-fluid">
           <a class="navbar-brand" href="/home">Wanderly</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"

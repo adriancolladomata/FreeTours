@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Modal } from 'bootstrap'
 
 const email = ref('')
 const password = ref('')
@@ -35,7 +36,12 @@ async function registerUser() {
 
     console.log('Usuario registrado:', data.user)
     localStorage.setItem('user', JSON.stringify(data.user))
+    const modalEl = document.getElementById('loginModal')
+    const modal = Modal.getInstance(modalEl)
+    modal.hide()
+
     router.push('/home')
+
     
   } catch (err) {
     errorMsg.value = err.message
@@ -44,21 +50,17 @@ async function registerUser() {
 </script>
 
 <template>
-  <div class="text-center" style="max-width: 400px; margin: 50px auto;">
+  <!-- PLANTILLA BOOTSTRAP DEL REGISTER -->
+  <div class="text-center" style="max-width: 400px; margin: 20px auto;">
     <form class="form-signin" @submit.prevent="registerUser">
-      <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-      <h1 class="h3 mb-3 font-weight-normal">Please register</h1>
+
+      <h1 class="h3 mb-3 font-weight-normal mb-4">Registrate</h1>
 
       <input type="email" class="form-control mb-2" placeholder="Email address" v-model="email" required autofocus>
       <input type="password" class="form-control mb-2" placeholder="Password" v-model="password" required>
-      <input type="password" class="form-control mb-2" placeholder="Confirm Password" v-model="confirmPassword" required>
+      <input type="password" class="form-control mb-4" placeholder="Confirm Password" v-model="confirmPassword" required>
 
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-
-      <div class="registered">
-      <p>¿Ya estás registrado?</p>
-      <RouterLink to="/login">Inicia sesión</RouterLink>
-      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Registrarse</button>
 
       <p v-if="errorMsg" class="text-danger mt-2">{{ errorMsg }}</p>
     </form>

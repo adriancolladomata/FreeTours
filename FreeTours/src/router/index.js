@@ -4,6 +4,7 @@ import Register from '@/views/Register.vue'
 import Home from '@/views/Home.vue'
 import GestionUsuarios from '@/views/GestionUsuarios.vue'
 import GestionRutas from '@/views/GestionRutas.vue'
+import GestionReservas from '@/views/GestionReservas.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,11 @@ const router = createRouter({
       name: 'Gestion de rutas',
       component: GestionRutas,
     },
+    {
+      path: '/gestion_reservas',
+      name: 'Gestion de reservas',
+      component: GestionReservas,
+    }
   ],
 })
 
