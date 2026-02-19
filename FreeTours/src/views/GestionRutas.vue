@@ -2,20 +2,32 @@
 import { ref, onMounted } from 'vue'
 import { Modal } from 'bootstrap'
 
+// Importación de Bootstrap (CSS + JS) para estilos y modales
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
+// Importación del componente de navegación superior
 import NavBar from '@/components/NavBar.vue'
 
 // DECLARACIÓN DE LAS VARIABLES
 
+// Lista de rutas obtenidas desde la API
 const routes = ref([])
+
+// Lista de usuarios (guías incluidos)
 const users = ref([])
+
+// Mensaje de error general
 const errorMsg = ref('')
+
+// ID de la ruta que se está editando actualmente
 const editingRouteId = ref(null)
+
+// ID del guía seleccionado en el desplegable
 const selectedGuideId = ref('')
 
 // INSTANCIACIÓN DE LA RUTA Y SUS VALORES
+// Objeto reactivo que se usa para crear una nueva ruta
 const newRoute = ref({
   titulo: '',
   localidad: '',
@@ -26,7 +38,8 @@ const newRoute = ref({
   longitud: ''
 })
 
-/* FUNCIÓN PARA CARGAR LAS RUTAS */
+// FUNCIÓN PARA CARGAR LAS RUTAS //
+// Obtiene todas las rutas desde la API y las guarda en el estado
 
 async function loadRoutes() {
   errorMsg.value = ''
@@ -42,7 +55,9 @@ async function loadRoutes() {
   }
 }
 
-/* FUNCION PARA CARGAR USUARIOS */
+// FUNCION PARA CARGAR USUARIOS //
+// Carga todos los usuarios para poder filtrar guías disponibles
+
 async function loadUsers() {
   try {
     const response = await fetch('http://localhost:8005/api.php/usuarios')
@@ -53,14 +68,25 @@ async function loadUsers() {
 }
 
 // FUNCION PARA CARGAR LAS RUTAS DISPONIBLES DE LOS GUIAS
+// Devuelve solo los guías que no tengan ruta asignada en la misma fecha
+
 function availableGuidesForDate(fecha) {
-  return users.value.filter(u => u.rol === 'guia' && !routes.value.some(r => r.fecha === fecha && r.guia_id === u.id))
+  return users.value.filter(
+    u =>
+      u.rol === 'guia' &&
+      !routes.value.some(r => r.fecha === fecha && r.guia_id === u.id)
+  )
 }
 
-/* CREAR RUTA */
+// CREAR RUTA //
+// Envía los datos del formulario a la API y crea una nueva ruta
+
 async function createRoute() {
   try {
+    // Genera un ID aleatorio de 5 cifras
     newRoute.value.id = Math.floor(10000 + Math.random() * 90000)
+
+    // Campos extra necesarios para la API
     newRoute.value.foto = ''
     newRoute.value.guia_id = null
 
@@ -72,10 +98,12 @@ async function createRoute() {
 
     const data = await response.json()
 
+    // Si la API responde con error, se lanza excepción
     if (data.status !== 'success') {
       throw new Error(data.message || 'Error al crear ruta')
     }
 
+    // Resetea el formulario tras crear la ruta
     newRoute.value = {
       titulo: '',
       localidad: '',
@@ -86,8 +114,10 @@ async function createRoute() {
       longitud: ''
     }
 
+    // Recarga las rutas para reflejar los cambios
     loadRoutes()
 
+    // Cierra el modal manualmente usando Bootstrap
     const modal = document.getElementById('createRouteModal')
     const bootstrapModal = Modal.getInstance(modal) || new Modal(modal)
     bootstrapModal.hide()
@@ -97,7 +127,8 @@ async function createRoute() {
   }
 }
 
-/* ASIGNAR GUÍA */
+// ASIGNAR GUÍA //
+// Asigna un guía a una ruta concreta
 
 async function assignGuide(routeId) {
   try {
@@ -112,12 +143,16 @@ async function assignGuide(routeId) {
 
     const data = await response.json()
 
+    // Control de errores devueltos por la API
     if (data.status !== 'success') {
       throw new Error(data.message)
     }
 
+    // Sale del modo edición
     editingRouteId.value = null
     selectedGuideId.value = ''
+
+    // Recarga las rutas para mostrar el guía asignado
     loadRoutes()
 
   } catch (err) {
@@ -125,7 +160,8 @@ async function assignGuide(routeId) {
   }
 }
 
-/* ELIMINAR RUTA */
+// ELIMINAR RUTA //
+// Elimina una ruta tras confirmación del usuario
 
 async function deleteRoute(id) {
   if (!confirm('¿Eliminar esta ruta?')) return
@@ -142,19 +178,23 @@ async function deleteRoute(id) {
       throw new Error(data.message)
     }
 
+    // Recarga la lista tras eliminar
     loadRoutes()
   } catch (err) {
     errorMsg.value = err.message
   }
 }
 
-/* CANCELAR EDICION */
+// CANCELAR EDICION //
+// Cancela la asignación de guía y restaura el estado inicial
 
 function cancelEdit() {
   editingRouteId.value = null
   selectedGuideId.value = ''
 }
 
+// CARGA INICIAL
+// Se ejecuta al montar el componente
 
 onMounted(() => {
   loadRoutes()
@@ -162,21 +202,16 @@ onMounted(() => {
 })
 </script>
 
+
 <template>
 
   <NavBar />
 
   <!-- TÍTULO -->
   <div class="container mt-4 pt-4 text-center">
-    <h2 class="fw-bold text-danger">
-      Rutas disponibles
-    </h2>
-    <p class="text-muted">
-      Gestión y asignación de rutas activas
-    </p>
-    <span class="badge bg-danger px-3 py-2">
-      Panel de rutas
-    </span>
+    <h2 class="fw-bold text-danger">Rutas disponibles</h2>
+    <p class="text-muted">Gestión y asignación de rutas activas</p>
+    <span class="badge bg-danger px-3 py-2">Panel de rutas</span>
   </div>
 
   <!-- BOTÓN CREAR RUTA -->

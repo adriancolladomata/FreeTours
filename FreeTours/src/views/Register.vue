@@ -60,7 +60,7 @@ async function registerUser() {
       <input type="password" class="form-control mb-2" placeholder="Password" v-model="password" required>
       <input type="password" class="form-control mb-4" placeholder="Confirm Password" v-model="confirmPassword" required>
 
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Registrarse</button>
+      <button class="btn btn-lg btn-danger btn-block" type="submit">Registrarse</button>
 
       <p v-if="errorMsg" class="text-danger mt-2">{{ errorMsg }}</p>
     </form>
