@@ -10,37 +10,42 @@
 	const router = useRouter();
 
 	async function loginUser() {
-  		errorMsg.value = '';
+		errorMsg.value = ''
 
-  		try {
-    		const response = await fetch('http://localhost:8005/api.php/usuarios?login', {
-      			method: 'POST',
-      			headers: { 'Content-Type': 'application/json' },
-      			body: JSON.stringify({
-        			email: email.value,
-        			contraseña: password.value
-      			})
-    		})
+		try {
+			const response = await fetch('http://localhost:8005/api.php/usuarios?login', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				email: email.value,
+				contraseña: password.value
+			})
+			})
 
-    		const data = await response.json()
+			const data = await response.json()
 
-    		if (data.status !== 'success') {
-      			throw new Error(data.message || 'Datos incorrectas')
-    		}
+			if (data.status !== 'success') {
+			throw new Error(data.message || 'Datos incorrectos')
+			}
 
-    		console.log('Usuario logueado:', data.user)
-    		localStorage.setItem('user', JSON.stringify(data.user))
-    		const modalEl = document.getElementById('loginModal')
+			console.log('Usuario logueado:', data.user)
+
+			// ✅ GUARDAR USUARIO
+			localStorage.setItem('user', JSON.stringify(data.user))
+			window.dispatchEvent(new Event('storage')) // ⭐ ESTA LÍNEA ES CLAVE
+
+			// ✅ CERRAR MODAL
+			const modalEl = document.getElementById('loginModal')
 			const modal = Modal.getInstance(modalEl)
 			modal.hide()
 
+			// ✅ REDIRECCIÓN
 			router.push('/home')
 
-
-  		} catch (err) {
-    		errorMsg.value = err.message
-  		}	
-	}
+		} catch (err) {
+			errorMsg.value = err.message
+		}
+		}
 </script>
 
 <template>

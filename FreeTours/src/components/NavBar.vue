@@ -1,34 +1,56 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter, RouterLink } from 'vue-router' // Importamos RouterLink
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
 
 const router = useRouter()
 
+// ESTADO REACTIVO
 const user = ref(null)
 const isLogged = ref(false)
 const role = ref(null)
 
+// COMPROBAR USUARIO EN LOCALSTORAGE (CON SEGURIDAD)
 function checkUser() {
   const storedUser = localStorage.getItem('user')
-  if (storedUser) {
+
+  if (!storedUser) {
+    user.value = null
+    role.value = null
+    isLogged.value = false
+    return
+  }
+
+  try {
     user.value = JSON.parse(storedUser)
-    role.value = user.value.rol
+    role.value = user.value?.rol || null
     isLogged.value = true
-  } else {
+  } catch (error) {
+    console.error('Error leyendo user:', error)
+    localStorage.removeItem('user')
     user.value = null
     role.value = null
     isLogged.value = false
   }
 }
 
+// CERRAR SESIÓN
 function logout() {
   localStorage.removeItem('user')
-  isLogged.value = false
+  window.dispatchEvent(new Event('storage')) // avisamos al resto
   router.push('/home')
 }
 
-onMounted(checkUser)
+// CICLO DE VIDA
+onMounted(() => {
+  checkUser()
+  window.addEventListener('storage', checkUser)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('storage', checkUser)
+})
 </script>
+
 
 <template>
   <nav class="navbar navbar-expand-md navbar-dark fixed-top shadow" style="background-color: #dc3545;">
@@ -58,13 +80,18 @@ onMounted(checkUser)
         </ul>
 
         <div class="d-flex align-items-center gap-3">
+          <!-- TEXTO USUARIO -->
           <span v-if="isLogged" class="text-white small d-none d-lg-inline">
-            Hola, {{ user?.nombre || 'Admin' }}
+            Hola, {{ user?.nombre || 'Usuario' }}
           </span>
-          <button v-if="isLogged" class="btn btn-light btn-sm fw-bold text-danger" @click="logout">
-            Cerrar sesión
-          </button>
+
+          <!-- BOTÓN CERRAR SESIÓN -->
+          <button v-if="isLogged" class="btn btn-light btn-sm fw-bold text-danger" @click="logout">Cerrar sesión</button>
+
+          <!-- BOTÓN INICIAR SESIÓN -->
+          <button v-else class="btn btn-light btn-sm fw-bold text-danger" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar sesión</button>
         </div>
+
       </div>
     </div>
   </nav>
